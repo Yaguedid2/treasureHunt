@@ -1,0 +1,103 @@
+.btn{
+    border: 2px solid black;
+    border-radius: 0%;
+}
+body{
+    display: flex;
+    flex-direction: column;
+}
+
+#createQuestDiv{
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    padding: 2%;
+
+
+}
+#createQuestDiv p{
+   text-align: center;
+   margin: 0%;
+   margin-right: 2%;
+   font-weight: 500;
+
+}
+hr{
+    align-self: center;
+    width: 90%;
+   border-width: 2px;
+}
+
+
+#questContainer{
+
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+    width: 90%;
+    padding-left: 5%;
+    padding-right: 5%;
+}
+.quest{
+    display: flex;
+    text-align: center;
+    align-items:center ;
+    margin-bottom: 10px;
+}
+.questButtons,.questName{
+width: 50%;
+
+margin: 0%;
+padding: 0%;
+height: 40px;
+display: flex;
+}
+.questName{
+    border: 2px solid #86c2da;
+    background-color: #ededed;
+}
+.questName p{
+text-align: center;
+margin: 0%;
+align-self: center;
+padding-left: 2%;
+font-weight: 500;
+
+}
+.questButtons{
+    justify-content: center;
+    justify-content: space-around;
+}
+.questButtons button{
+    width: 40%;
+  
+}
+
+
+
+#page-link-container{
+
+    align-self: center;
+    display: flex;
+    width: 70%;
+    justify-content: center;
+    
+}
+#page-link-container p{
+
+   margin-right: 2%;
+   
+    
+}
+#page-link-container div{
+
+  display: flex; 
+     width: 20%;
+    justify-content: space-around;
+
+ }
+
+ 
+
+
+

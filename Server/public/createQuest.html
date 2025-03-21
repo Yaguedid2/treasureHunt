@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, private">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="-1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="createQuest.css">
+    <title>Create Quest</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/displayQuests">Quests</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle"  role="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            Pages
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/displayQuests">List of Quests</a></li>
+                            <li><a class="dropdown-item" href="/addQuest">Add Quest</a></li>
+                            
+                        </ul>
+                    </li>
+                </ul>
+
+                <!-- Right-aligned content -->
+                <div class="d-flex align-items-center ms-auto">
+                    <p class="mb-0 me-3" id="userNameText">Hi</p>
+                    <a class="btn btn-danger" href="/logout">Disconnect</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <form id="questForm" action="/upload" method="POST" enctype="multipart/form-data">
+        <div id="questInfo">
+            <div>
+                <p class="title">Create new Quest</p>
+                <div class="levelOfEaseDiv" style="display: flex; align-items: center;">
+                
+                    <select name="order" style="width: 50%;" aria-label="order">
+                        <option value="1">With order</option>
+                        <option value="0">Without order</option>
+                    
+                    </select>
+                </div>
+            
+            </div>
+            <div>
+                <input type="text" class="form-control " name="questName" id="questName" placeholder="Quest Name" required>
+                <div>
+                    <label for="QuestMapInput1" class="title">Quest Map:</label>
+                    <input type="file" id="QuestMapInput1" name="QuestMap" required>
+                </div>
+            </div>
+        </div>
+
+        <div id="markerContainer">
+            <div class="marker">
+                <div class="markerPrefabDiv">
+                    <div class="markerDiv">
+                        <label for="QuestMapInput2" class="title">Marker:</label>
+                        <input type="file" id="QuestMapInput2" name="MarkerImage" required>
+                    </div>
+                    <div class="prefabDiv">
+                        <label for="QuestMapInput3" class="title">Prefab:</label>
+                        <input type="file" id="QuestMapInput3" name="PrefabImage" required>
+                    </div>
+                </div>
+                <div class="markerInfoDiv">
+                    <input type="text" name="markerName" placeholder="Marker Name" required>
+                    <input type="text" name="longitude" placeholder="Longitude" required>
+                    <input type="text" name="latitude" placeholder="Latitude" required>
+                </div>
+                <div class="hintDiv">
+                    <textarea name="hint1" placeholder="Hint1" required></textarea>
+                    <textarea name="hint2" placeholder="Hint2" required></textarea>
+                </div>
+                <div class="levelOfEaseDiv" style="display: flex; align-items: center;">
+                    <p>Difficulty level</p>
+                    <select name="difficultyLevel" style="width: 20%;" aria-label="Difficulty level">
+                        <option value="Easy">Easy</option>
+                        <option value="Average">Average</option>
+                        <option value="Hard">Hard</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="button-container">
+            <button id="addMarkerBtn" type="button" class="btn btn-primary">Add Marker </button>
+            <button id="saveQuestBtn" type="submit" class="btn btn-danger">Save </button>
+        </div>
+    </form>
+
+  
+    
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script> 
+    <script src="createQuest.js"></script>
+  </body>
+</html>

@@ -1,0 +1,17 @@
+-- Insert a quest
+INSERT INTO quests (name, with_order, map) 
+VALUES ('Treasure Hunt', 1, 'uploads/maps/treasure_hunt_map.png');
+
+-- Get the last inserted quest ID
+SET @quest_id = LAST_INSERT_ID();
+
+-- Insert markers for the quest
+INSERT INTO markers (quest_id, name, latitude, longitude, marker_image, prefab, hint1, hint2, level_of_ease) 
+VALUES 
+(@quest_id, 'Ancient Tree', 34.052235, -118.243683, 'uploads/markers/tree.png', 'uploads/prefabs/tree.obj', 'Look for the tallest tree.', 'It has a big hollow in the trunk.', 'Easy'),
+(@quest_id, 'Mysterious Cave', 34.052500, -118.244000, 'uploads/markers/cave.png', 'uploads/prefabs/cave.obj', 'Hidden behind the waterfall.', 'Echoes can be heard inside.', 'Medium'),
+(@quest_id, 'Old Ruins', 34.053000, -118.245000, 'uploads/markers/ruins.png', 'uploads/prefabs/ruins.obj', 'Once home to an ancient king.', 'Has crumbling stone walls.', 'Hard');
+
+
+
+
