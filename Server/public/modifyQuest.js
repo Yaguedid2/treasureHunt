@@ -1,3 +1,4 @@
+var _testdata;
 window.onload=function(){
 
 
@@ -84,7 +85,7 @@ window.onload=function(){
         }).then(response=>response.json()).then(d=>displayData(d));
     }
     function displayData(data){
-        //console.log(data);
+        _testdata=console.log(data);
         const questOrder=document.querySelector("#questOrder");
         const questMapFile=document.querySelector("#questMapFile");
         const questIdp=document.querySelector("#questId");
