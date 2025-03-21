@@ -84,7 +84,7 @@ window.onload=function(){
         }).then(response=>response.json()).then(d=>displayData(d));
     }
     function displayData(data){
-        console.log(data);
+        //console.log(data);
         const questOrder=document.querySelector("#questOrder");
         const questMapFile=document.querySelector("#questMapFile");
         const questIdp=document.querySelector("#questId");
@@ -102,7 +102,7 @@ window.onload=function(){
         questOrder.value=with_order;
        questIdp.value=questId;
         
-        questMapFile.value=questMapFileUrl.split("\\")[1];
+        questMapFile.value=questMapFileUrl.split("/")[1];
         for(let marker in data)
         {
             marker=data[marker];
@@ -116,8 +116,8 @@ window.onload=function(){
             var marker_image=marker.marker_image;
             var marker_name=marker.marker_name;
             var prefab=marker.prefab;
-            var marker_image_url=marker.marker_image.split("\\")[1];
-            var prefab_url=marker.prefab.split("\\")[1];
+            var marker_image_url=marker.marker_image.split("/")[1];
+            var prefab_url=marker.prefab.split("/")[1];
             markerContainerDiv.innerHTML+=`
             <form class="questForm" action="/update-marker" method="POST" enctype="multipart/form-data">
             <div class="marker">
