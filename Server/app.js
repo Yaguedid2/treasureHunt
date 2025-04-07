@@ -402,9 +402,9 @@ app.post("/signup", async (req, res) => {
             from: 'treasurehunt@upo-opu.com',
             to: email,
             subject: "Verify Your Account",
-            html: `<h3>Welcome to our game!</h3>
+            html: `<h3>Welcome to Treasure Hunt !</h3>
                    <p>Please verify your email by clicking the link below:</p>
-                   <a href="${verificationLink}"> verification link </a>
+                   <a href="https://pop-pup.com${verificationLink}"> verification link </a>
                    `
         });
 

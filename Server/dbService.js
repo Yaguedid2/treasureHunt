@@ -309,31 +309,58 @@ class DbService{
     }
     
     
-    async  storeTempUser(username,password, name, email, city, country, age, sexe) {
+    async storeTempUser(username, password, name, email, city, country, age, sexe) {
         try {
-            const verificationToken = crypto.randomBytes(32).toString("hex");
-    
-            await new Promise((resolve, reject) => {
-                const query = "INSERT INTO TempUsers (Username, Name, Password,Email, City, Country, Age, Sexe, VerificationToken) VALUES (?, ?,?, ?, ?, ?, ?, ?, ?)";
-                connection.query(query, [username, name, password,email, city, country, age, sexe, verificationToken], (err, results) => {
-                    if (err) reject(new Error(err.message));
+            // First check if username or email already exists
+            const checkUser = await new Promise((resolve, reject) => {
+                const query = "SELECT * FROM Players WHERE Username = ? OR Email = ?";
+                connection.query(query, [username, email], (err, results) => {
+                    if (err) reject(new Error("Database error"));
                     resolve(results);
                 });
             });
     
-            return verificationToken;
+            if (checkUser.length > 0) {
+                // Check which field caused the conflict
+                const usernameExists = checkUser.some(user => user.Username === username);
+                const emailExists = checkUser.some(user => user.Email === email);
+                
+                let errorMessage = '';
+                if (usernameExists && emailExists) {
+                    errorMessage = 'Username and email already exist';
+                } else if (usernameExists) {
+                    errorMessage = 'Username already exists';
+                } else {
+                    errorMessage = 'Email already exists';
+                }
+                
+                return { success: false, message: errorMessage };
+            }
+    
+            const verificationToken = crypto.randomBytes(32).toString("hex");
+    
+            await new Promise((resolve, reject) => {
+                const query = "INSERT INTO TempUsers (Username, Name, Password, Email, City, Country, Age, Sexe, VerificationToken) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                connection.query(query, [username, name, password, email, city, country, age, sexe, verificationToken], (err, results) => {
+                    if (err) reject(new Error("Database error"));
+                    resolve(results);
+                });
+            });
+    
+            return { success: true, token: verificationToken };
         } catch (error) {
             console.log(error);
-            throw error;
+            return { success: false, message: "An error occurred during registration" };
         }
     }
-    async  verifyUser(token) {
+    
+    async verifyUser(token) {
         try {
             // Retrieve user from TempUsers
             const user = await new Promise((resolve, reject) => {
                 const query = "SELECT * FROM TempUsers WHERE VerificationToken = ?";
                 connection.query(query, [token], (err, results) => {
-                    if (err) reject(new Error(err.message));
+                    if (err) reject(new Error("Database error"));
                     resolve(results.length > 0 ? results[0] : null);
                 });
             });
@@ -342,27 +369,54 @@ class DbService{
                 return { success: false, message: "Invalid or expired token!" };
             }
     
-            // Insert into Players table
-            await new Promise((resolve, reject) => {
-                const query = "INSERT INTO Players (Username, Name, Email, City,Password, Country, Age, Sexe, Points, Coins, Gems, Total_Quests, Started_Quests, Finished_Quests) VALUES (?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                connection.query(query, [user.Username, user.Name, user.Email, user.City, user.Password,user.Country, user.Age, user.Sexe, 0, 0, 0, 0, 0, 0], (err, results) => {
-                    if (err) reject(new Error(err.message));
+            // Check again if username or email exists (in case someone registered the same credentials while this token was pending)
+            const checkUser = await new Promise((resolve, reject) => {
+                const query = "SELECT * FROM Players WHERE Username = ? OR Email = ?";
+                connection.query(query, [user.Username, user.Email], (err, results) => {
+                    if (err) reject(new Error("Database error"));
                     resolve(results);
                 });
             });
+    
+            if (checkUser.length > 0) {
+                return { 
+                    success: false, 
+                    message: "This username or email was registered by someone else while your verification was pending" 
+                };
+            }
+    
+            // Insert into Players table
+            await new Promise((resolve, reject) => {
+                const query = "INSERT INTO Players (Username, Name, Email, City, Password, Country, Age, Sexe, Points, Coins, Gems, Total_Quests, Started_Quests, Finished_Quests) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                connection.query(query, [
+                    user.Username, 
+                    user.Name, 
+                    user.Email, 
+                    user.City, 
+                    user.Password,
+                    user.Country, 
+                    user.Age, 
+                    user.Sexe, 
+                    0, 0, 0, 0, 0, 0
+                ], (err, results) => {
+                    if (err) reject(new Error("Database error"));
+                    resolve(results);
+                });
+            });
+    
             const quests = await new Promise((resolve, reject) => {
                 const query = "SELECT Name FROM Quests";
                 connection.query(query, (err, results) => {
-                    if (err) reject(new Error(err.message));
+                    if (err) reject(new Error("Database error"));
                     resolve(results.map(row => row.Name));
                 });
             });
     
             for (const questName of quests) {
                 await new Promise((resolve, reject) => {
-                    const insertQuery = "INSERT INTO QuestTimes (Player_Username , Quest_Name, Completion_Time,started) VALUES (?, ?, NULL,0)";
+                    const insertQuery = "INSERT INTO QuestTimes (Player_Username, Quest_Name, Completion_Time, started) VALUES (?, ?, NULL, 0)";
                     connection.query(insertQuery, [user.Username, questName], (err, result) => {
-                        if (err) reject(new Error(err.message));
+                        if (err) reject(new Error("Database error"));
                         resolve(result);
                     });
                 });
@@ -372,7 +426,7 @@ class DbService{
             await new Promise((resolve, reject) => {
                 const query = "DELETE FROM TempUsers WHERE VerificationToken = ?";
                 connection.query(query, [token], (err, results) => {
-                    if (err) reject(new Error(err.message));
+                    if (err) reject(new Error("Database error"));
                     resolve(results);
                 });
             });
@@ -380,7 +434,7 @@ class DbService{
             return { success: true, message: "Your account has been verified!" };
         } catch (error) {
             console.log(error);
-            throw error;
+            return { success: false, message: "An error occurred during verification" };
         }
     }
     
