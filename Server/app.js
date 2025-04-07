@@ -110,25 +110,37 @@ app.post('/getUser',(request,response)=>{
             response.status(500).json({ success: false, message: "Internal server error " });
         });
 });
-app.post('/getplayer',(request,response)=>{
-    const {email,password}=request.body;
-   
-    const db=DbService.getDbServiceInstance();
- 
+app.post('/getplayer', (request, response) => {
+    const { email, password } = request.body;
+    const db = DbService.getDbServiceInstance();
+
     db.getPlayer(email, password)
-         .then(data => {
-             if (data.length > 0) {
-               
-                 response.json(data[0]);
-             } else {
-                 response.json({ success: false, message: "Invalid username or password" });
-             }
-         })
-         .catch(err => {
-             console.log(err);
-             response.status(500).json({ success: false, message: "Internal server error " });
-         });
- });
+        .then(data => {
+            if (data.length > 0) {
+                // Store player session
+                request.session.player = data[0]; // You can store full object or just email
+                response.json({ success: true });
+            } else {
+                response.json({ success: false, message: "Invalid email or password" });
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            response.status(500).json({ success: false, message: "Internal server error" });
+        });
+});
+app.get('/getPlayer', (req, res) => {
+    if (req.session.player) {
+        return res.json({ loggedIn: true, player: req.session.player.Name });
+    } else {
+        return res.json({ loggedIn: false });
+    }
+});
+app.get('/logoutPlayer', (req, res) => {
+    req.session.destroy(() => {
+        res.redirect('/');
+    });
+});
 app.get('/displayQuests', (req, res) => {
    if (!req.session.user) {
        return res.redirect('/');
@@ -390,30 +402,39 @@ app.get('/signup', (req, res) => {
 
 
 
-app.post("/signup", async (req, res) => {
-    const { username, name, email, password,city, country, age, sexe } = req.body;
-    const db=DbService.getDbServiceInstance();
+ app.post("/signup", async (req, res) => {
+    const { username, name, email, password, city, country, age, sexe } = req.body;
+    const db = DbService.getDbServiceInstance();
+
     try {
-        const token = await db.storeTempUser(username,password, name, email, city, country, age, sexe);
+        const token = await db.storeTempUser(username, password, name, email, city, country, age, sexe);
+
+        // Check if username already exists
+        if (token === -1) {
+            return res.status(400).json({ message: "Username Or Email already exists." });
+        }
 
         const verificationLink = `/verify?token=${token}`;
-      
+
         await transporter.sendMail({
             from: 'treasurehunt@upo-opu.com',
             to: email,
             subject: "Verify Your Account",
-            html: `<h3>Welcome to Treasure Hunt !</h3>
-                   <p>Please verify your email by clicking the link below:</p>
-                   <a href="https://pop-pup.com${verificationLink}"> verification link </a>
-                   `
+            html: `
+                <h3>Welcome to Treasure Hunt!</h3>
+                <p>Please verify your email by clicking the link below:</p>
+                <a href="https://pop-pup.com${verificationLink}">Verification link</a>
+            `
         });
 
         res.status(200).json({ message: "Verification email sent! Please check your inbox." });
 
     } catch (error) {
+        console.error("Signup error:", error);
         res.status(500).json({ message: "Error processing signup request" });
     }
 });
+
 app.get("/verify", async (req, res) => {
     const token = req.query.token;
     const db=DbService.getDbServiceInstance();
@@ -421,7 +442,8 @@ app.get("/verify", async (req, res) => {
         const result = await db.verifyUser(token);
 
         if (result.success) {
-            res.send("<h3>Your account has been verified! You can now log in.</h3>");
+           // res.send("<h3>Your account has been verified! You can now log in.</h3>");
+           res.sendFile(__dirname + '/public/Verified.html');
         } else {
             res.send("<h3>Invalid or expired token.</h3>");
         }

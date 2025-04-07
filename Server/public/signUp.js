@@ -27,11 +27,12 @@ document.querySelector("form").addEventListener("submit", async (e) => {
     });
 
     const data = await response.json();
-   
+   var signInLink='<a href="/loginPlayer">sign in </a>';
     if (response.status === 400) {
         // Show the error message under the username input
         usernameError.style.display = "block";
         usernameError.textContent = data.message;
+        usernameError.innerHTML+=signInLink;
     } else if(response.status === 401) {
         emailError.style.display = "block";
         emailError.textContent = data.message;

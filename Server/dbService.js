@@ -309,25 +309,32 @@ class DbService{
     }
     
     
-    async  storeTempUser(username,password, name, email, city, country, age, sexe) {
+    async  storeTempUser(username, password, name, email, city, country, age, sexe) {
         try {
             const verificationToken = crypto.randomBytes(32).toString("hex");
     
-           
-
-
-            await new Promise((resolve, reject) => {
-                const query = "INSERT INTO TempUsers (Username, Name, Password,Email, City, Country, Age, Sexe, VerificationToken) VALUES (?, ?,?, ?, ?, ?, ?, ?, ?)";
-                connection.query(query, [username, name, password,email, city, country, age, sexe, verificationToken], (err, results) => {
-                    if (err) reject(new Error(err.message));
-                    resolve(results);
+            const result = await new Promise((resolve, reject) => {
+                const query = `
+                    INSERT INTO TempUsers 
+                    (Username, Name, Password, Email, City, Country, Age, Sexe, VerificationToken)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                `;
+                connection.query(query, [username, name, password, email, city, country, age, sexe, verificationToken], (err, results) => {
+                    if (err) {
+                        // Check for duplicate entry error (MySQL error code: 1062)
+                        if (err.code === 'ER_DUP_ENTRY') {
+                            return resolve(-1); // Return -1 for duplicate entry
+                        }
+                        return reject(new Error(err.message));
+                    }
+                    resolve(verificationToken);
                 });
             });
     
-            return verificationToken;
+            return result; // Either the token or -1
         } catch (error) {
             console.log(error);
-            throw error;
+            return -2; // Return -2 for unknown error
         }
     }
     async  verifyUser(token) {

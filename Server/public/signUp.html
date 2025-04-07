@@ -11,6 +11,28 @@
     <link rel="stylesheet" href="login.css">
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="/">Treasure Hunt</a>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarContent"
+            aria-controls="navbarContent"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+    
+          <div class="collapse navbar-collapse" id="navbarContent">
+            <div class="d-flex align-items-center ms-auto" id="authArea">
+              <!-- Dynamic content injected here by JavaScript -->
+            </div>
+          </div>
+        </div>
+      </nav>
     
     <div class="container mt-5">
         <h2 class="text-center">Sign Up</h2>
@@ -18,7 +40,7 @@
             <div class="mb-3">
                 <label class="form-label">Username</label>
                 <input type="text" class="form-control" id="usernameInput" required>
-                <span id="usernameError" class="text-danger" style="display: none;">Username already taken!</span>
+              
             </div>
             
             <div class="mb-3">
@@ -59,6 +81,7 @@
             </div>
            
             <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+            <p id="usernameError" class="text-danger" style="display: none;">Username already taken!</p>
         </form>
     </div>
 
