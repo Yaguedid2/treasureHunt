@@ -313,13 +313,7 @@ class DbService{
         try {
             const verificationToken = crypto.randomBytes(32).toString("hex");
     
-            await new Promise((resolve, reject) => {
-                const query = "DELETE FROM TempUsers;";
-                connection.query(query, [token], (err, results) => {
-                    if (err) reject(new Error(err.message));
-                    resolve(results);
-                });
-            });
+           
 
 
             await new Promise((resolve, reject) => {
