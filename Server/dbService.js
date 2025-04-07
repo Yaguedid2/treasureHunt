@@ -1,6 +1,6 @@
 const mysql=require('mysql');
 const dotenv=require('dotenv');
-
+const crypto = require("crypto");
 
 dotenv.config();
 
@@ -212,8 +212,180 @@ class DbService{
         }
         
     }
+    async getPlayer(emailOrUsername, password) {
+        try {
+            // Regular expression to validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+            let query, params;
+    
+            if (emailRegex.test(emailOrUsername)) {
+                // If it's a valid email, search by email
+                query = "SELECT * FROM `players` WHERE Email=? AND Password=?";
+                params = [emailOrUsername, password];
+            } else {
+                // If not a valid email, search by username
+                query = "SELECT * FROM `players` WHERE Username=? AND Password=?";
+                params = [emailOrUsername, password];
+            }
+    
+            const response = await new Promise((resolve, reject) => {
+                connection.query(query, params, (err, results) => {
+                    if (err) reject(new Error(err.message));
+                    resolve(results);
+                });
+            });
+    
+            return response;
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    async getQuestsByPlayer(username) {
+        try{
+           
 
+            const response=await new Promise((resolve,reject)=>{
+           
+                const query="SELECT * FROM `questtimes` WHERE Player_Username=?;";
+                connection.query(query,[username],(err,results)=>{
+                    if(err) reject(new Error(err.message));
+                    resolve(results);
+                })
+        });
+            
+            return response;
+        }catch(error){
+            console.log(error);
+        }
+    }
+
+
+
+
+
+
+    async signUp(username, name, email, city, country, age, sexe, points, coins, gems, total_quests, started_quests, finished_quests) {
+        try {
+            // Check if username already exists
+            const userExists = await new Promise((resolve, reject) => {
+                const checkQuery = "SELECT COUNT(*) AS count FROM Players WHERE Username = ?";
+                connection.query(checkQuery, [username], (err, results) => {
+                    if (err) reject(new Error(err.message));
+                    resolve(results[0].count > 0); // If count > 0, username exists
+                });
+            });
+    
+            const emailExists = await new Promise((resolve, reject) => {
+                const checkQuery = "SELECT COUNT(*) AS count FROM Players WHERE Email = ?";
+                connection.query(checkQuery, [email], (err, results) => {
+                    if (err) reject(new Error(err.message));
+                    resolve(results[0].count > 0); // If count > 0, email exists
+                });
+            });
+    
+            if (userExists) {
+                return { success: false, exception: "username", message: "Username already taken!" };
+            }
+            if (emailExists) {
+                return { success: false, exception: "email", message: "There is aleady an account attached to this email , consider sign in !" };
+            }
+    
+            const response = await new Promise((resolve, reject) => {
+                const query = "INSERT INTO Players (Username, Name, Email, City, Country, Age, Sexe, Points, Coins, Gems, Total_Quests, Started_Quests, Finished_Quests) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?,?,?);";
+                connection.query(query, [username, name, email, city, country, age, sexe, points, coins, gems, total_quests, started_quests, finished_quests], (err, results) => {
+                    if (err) reject(new Error(err.message));
+                    resolve(results);
+                });
+            });
+    
+            // ADDITION: insert default quest times
+           
+    
+            return { success: true, message: "User registered successfully!" };
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    
+    
+    async  storeTempUser(username,password, name, email, city, country, age, sexe) {
+        try {
+            const verificationToken = crypto.randomBytes(32).toString("hex");
+    
+            await new Promise((resolve, reject) => {
+                const query = "INSERT INTO TempUsers (Username, Name, Password,Email, City, Country, Age, Sexe, VerificationToken) VALUES (?, ?,?, ?, ?, ?, ?, ?, ?)";
+                connection.query(query, [username, name, password,email, city, country, age, sexe, verificationToken], (err, results) => {
+                    if (err) reject(new Error(err.message));
+                    resolve(results);
+                });
+            });
+    
+            return verificationToken;
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
+    }
+    async  verifyUser(token) {
+        try {
+            // Retrieve user from TempUsers
+            const user = await new Promise((resolve, reject) => {
+                const query = "SELECT * FROM TempUsers WHERE VerificationToken = ?";
+                connection.query(query, [token], (err, results) => {
+                    if (err) reject(new Error(err.message));
+                    resolve(results.length > 0 ? results[0] : null);
+                });
+            });
+    
+            if (!user) {
+                return { success: false, message: "Invalid or expired token!" };
+            }
+    
+            // Insert into Players table
+            await new Promise((resolve, reject) => {
+                const query = "INSERT INTO Players (Username, Name, Email, City,Password, Country, Age, Sexe, Points, Coins, Gems, Total_Quests, Started_Quests, Finished_Quests) VALUES (?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                connection.query(query, [user.Username, user.Name, user.Email, user.City, user.Password,user.Country, user.Age, user.Sexe, 0, 0, 0, 0, 0, 0], (err, results) => {
+                    if (err) reject(new Error(err.message));
+                    resolve(results);
+                });
+            });
+            const quests = await new Promise((resolve, reject) => {
+                const query = "SELECT Name FROM Quests";
+                connection.query(query, (err, results) => {
+                    if (err) reject(new Error(err.message));
+                    resolve(results.map(row => row.Name));
+                });
+            });
+    
+            for (const questName of quests) {
+                await new Promise((resolve, reject) => {
+                    const insertQuery = "INSERT INTO QuestTimes (Player_Username , Quest_Name, Completion_Time,started) VALUES (?, ?, NULL,0)";
+                    connection.query(insertQuery, [user.Username, questName], (err, result) => {
+                        if (err) reject(new Error(err.message));
+                        resolve(result);
+                    });
+                });
+            }
+    
+            // Delete user from TempUsers
+            await new Promise((resolve, reject) => {
+                const query = "DELETE FROM TempUsers WHERE VerificationToken = ?";
+                connection.query(query, [token], (err, results) => {
+                    if (err) reject(new Error(err.message));
+                    resolve(results);
+                });
+            });
+    
+            return { success: true, message: "Your account has been verified!" };
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
+    }
+    
 
 }
+
 
 module.exports=DbService;

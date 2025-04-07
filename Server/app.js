@@ -6,6 +6,7 @@ const mysql = require('mysql2');
 const app=express();
 const cors=require('cors');
 const dotenv=require('dotenv');
+const nodemailer = require("nodemailer");
 dotenv.config();
 
 
@@ -15,7 +16,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended:false}));
 
 app.use(session({
-   secret: 'FC1D39E951195ADEC1CFA5B2A9ABC', // Change this to a strong secret key
+   secret: 'FC1D39E951195ADEC1CFA5B2A9ABC', 
    resave: false,
    saveUninitialized: true,
    cookie: { secure: false } // Set to true if using HTTPS
@@ -39,15 +40,47 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 //////
 
+const transporter = nodemailer.createTransport({
+    name: 'upo-opu.com',
+    host: "mail.upo-opu.com", 
+    port: 465, 
+    secure: true, // Set to true if using port 465 (SSL)
+    auth: {
+        user: "treasurehunt@upo-opu.com", // Replace with your Bluehost email
+        pass: "casa@CASA789789789" // Use your email password
+    },
+    tls: {
+        rejectUnauthorized: false // Important to prevent SSL issues
+    },
+   
+});
 
-app.get('/', (req, res) => {
+
+//////////////////
+
+
+app.get('/admin', (req, res) => {
    if (req.session.user) {
     return  res.sendFile(__dirname + '/public/displayQuests.html');
   }
    res.sendFile(__dirname + '/public/login.html');
 });
 
-
+app.get('/loginPlayer', (req, res) => {
+    
+    res.sendFile(__dirname + '/public/loginPlayer.html');
+ });
+ app.get('/redirecting', (req, res) => {
+    
+    res.sendFile(__dirname + '/public/redirecting.html');
+ });
+app.get('/', (req, res) => {
+   
+    res.sendFile(__dirname + '/public/index.html');
+ });
+ 
+ 
+ 
 
 const DbService = require('./dbService');
 
@@ -77,6 +110,25 @@ app.post('/getUser',(request,response)=>{
             response.status(500).json({ success: false, message: "Internal server error " });
         });
 });
+app.post('/getplayer',(request,response)=>{
+    const {email,password}=request.body;
+   
+    const db=DbService.getDbServiceInstance();
+ 
+    db.getPlayer(email, password)
+         .then(data => {
+             if (data.length > 0) {
+               
+                 response.json(data[0]);
+             } else {
+                 response.json({ success: false, message: "Invalid username or password" });
+             }
+         })
+         .catch(err => {
+             console.log(err);
+             response.status(500).json({ success: false, message: "Internal server error " });
+         });
+ });
 app.get('/displayQuests', (req, res) => {
    if (!req.session.user) {
        return res.redirect('/');
@@ -92,7 +144,7 @@ app.get('/displayQuests', (req, res) => {
 
 app.get('/addQuest', (req, res) => {
    if (!req.session.user) {
-       return res.redirect('/');
+       return res.redirect('/admin');
    }
    res.set({
       'Cache-Control': 'no-store, no-cache, must-revalidate, private',
@@ -103,7 +155,7 @@ app.get('/addQuest', (req, res) => {
 });
 app.get('/logout', (req, res) => {
    req.session.destroy(() => {
-       res.redirect('/');
+       res.redirect('/admin');
    });
 });
 app.get('/getUserName', (req, res) => {
@@ -197,7 +249,7 @@ app.post('/update', upload.fields([
 ]), async (req, res) => {
   
     if (!req.session.user) {
-        return res.redirect('/');
+        return res.redirect('/admin');
     }
     const db = DbService.getDbServiceInstance();
     
@@ -230,7 +282,7 @@ app.post('/update-marker', upload.fields([
     { name: 'PrefabImage', maxCount: 1 }
 ]), async (req, res) => {
     if (!req.session.user) {
-        return res.redirect('/');
+        return res.redirect('/admin');
     }
     const db = DbService.getDbServiceInstance();
     
@@ -291,7 +343,7 @@ app.post('/update-marker', upload.fields([
 ///////////////////////////////Edit Quest///////////////////////////////////////////////////
 app.get('/modifyQuest', (req, res) => {
     if (!req.session.user) {
-        return res.redirect('/');
+        return res.redirect('/admin');
     }
     res.set({
        'Cache-Control': 'no-store, no-cache, must-revalidate, private',
@@ -325,6 +377,63 @@ app.post('/setQuestId', (req, res) => {
  });
 //////////////////////////////End Edit Quest////////////////////////////////////////////////
 
+/////////////////////////////sign up////////////////////////////////////////////////////////
+
+
+
+
+
+app.get('/signup', (req, res) => {
+    
+    res.sendFile(__dirname + '/public/signUp.html');
+ });
+
+
+
+app.post("/signup", async (req, res) => {
+    const { username, name, email, password,city, country, age, sexe } = req.body;
+    const db=DbService.getDbServiceInstance();
+    try {
+        const token = await db.storeTempUser(username,password, name, email, city, country, age, sexe);
+
+        const verificationLink = `/verify?token=${token}`;
+      
+        await transporter.sendMail({
+            from: 'treasurehunt@upo-opu.com',
+            to: email,
+            subject: "Verify Your Account",
+            html: `<h3>Welcome to our game!</h3>
+                   <p>Please verify your email by clicking the link below:</p>
+                   <a href="${verificationLink}"> verification link </a>
+                   `
+        });
+
+        res.status(200).json({ message: "Verification email sent! Please check your inbox." });
+
+    } catch (error) {
+        res.status(500).json({ message: "Error processing signup request" });
+    }
+});
+app.get("/verify", async (req, res) => {
+    const token = req.query.token;
+    const db=DbService.getDbServiceInstance();
+    try {
+        const result = await db.verifyUser(token);
+
+        if (result.success) {
+            res.send("<h3>Your account has been verified! You can now log in.</h3>");
+        } else {
+            res.send("<h3>Invalid or expired token.</h3>");
+        }
+
+    } catch (error) {
+        res.status(500).send("<h3>Server error while verifying your account.</h3>");
+    }
+});
+
+
+////////////////////////////end Sign up/////////////////////////////////////////////////////
+
 
 ////////////////////////////////APi for Unity/////////////////////////////////////////////////
 
@@ -336,6 +445,20 @@ app.get('/getQuestsUnity', (req, res) => {
         console.log(err);
     })
  });
+
+ app.post('/getQuestsByPlayer',(request,response)=>{
+    const {username}=request.body;
+    
+    const db=DbService.getDbServiceInstance();
+ 
+    db.getQuestsByPlayer(username)
+         .then(data =>  response.json(data))
+         .catch(err => {
+             console.log(err);
+             
+         });
+ });
+
  //////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////downlaod /////////////////////
 
