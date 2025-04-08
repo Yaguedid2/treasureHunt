@@ -119,7 +119,7 @@ app.post('/getplayer', (request, response) => {
             if (data.length > 0) {
                 // Store player session
                 request.session.player = data[0]; // You can store full object or just email
-                response.json({ success: true });
+                response.json(data[0]);
             } else {
                 response.json({ success: false, message: "Invalid email or password" });
             }
@@ -129,6 +129,10 @@ app.post('/getplayer', (request, response) => {
             response.status(500).json({ success: false, message: "Internal server error" });
         });
 });
+
+
+
+
 app.get('/getPlayer', (req, res) => {
     if (req.session.player) {
         return res.json({ loggedIn: true, player: req.session.player.Name });
