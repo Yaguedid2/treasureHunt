@@ -103,8 +103,8 @@ window.onload=function(){
         questOrder.value=with_order;
        questIdp.value=questId;
         
-        //questMapFile.value=questMapFileUrl.split("/")[1];
-        questMapFile.value=questMapFileUrl.split("\\")[1];
+        questMapFile.value=questMapFileUrl.split("/")[1];
+        //questMapFile.value=questMapFileUrl.split("\\")[1];
         for(let marker in data)
         {
             marker=data[marker];
