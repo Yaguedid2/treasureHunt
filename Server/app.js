@@ -78,9 +78,12 @@ app.get('/', (req, res) => {
    
     res.sendFile(__dirname + '/public/index.html');
  });
+ app.get('/verified', (req, res) => {
+    
+    res.sendFile(__dirname + '/public/Verified.html');
+ });
  
- 
- 
+
 
 const DbService = require('./dbService');
 
@@ -404,7 +407,7 @@ app.get('/signup', (req, res) => {
     res.sendFile(__dirname + '/public/signUp.html');
  });
 
-
+/*
 
  app.post("/signup", async (req, res) => {
     const { username, name, email, password, city, country, age, sexe } = req.body;
@@ -438,6 +441,29 @@ app.get('/signup', (req, res) => {
         res.status(500).json({ message: "Error processing signup request" });
     }
 });
+*/
+app.post("/signup", async (req, res) => {
+    const { username, name, email, password, city, country, age, sexe } = req.body;
+    const db = DbService.getDbServiceInstance();
+
+    try {
+        const result = await db.addPlayerWithoutVerification(username, password, name, email, city, country, age, sexe);
+        
+        if (result === -1) {
+            return res.status(400).json({ message: "Username already exists." });
+        } else if (result === -2) {
+            return res.status(400).json({ message: "Email already exists." });
+        }
+
+        return res.status(200).json({ message: "Signup successful!" });
+    } catch (error) {
+        console.error("Signup error:", error);
+        return res.status(500).json({ message: "Error processing signup request" });
+    }
+});
+
+
+
 
 app.get("/verify", async (req, res) => {
     const token = req.query.token;

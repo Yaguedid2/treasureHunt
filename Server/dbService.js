@@ -394,6 +394,59 @@ class DbService{
             throw error;
         }
     }
+    async addPlayerWithoutVerification(username, password, name, email, city, country, age, sexe) {
+        try {
+            const insertResult = await new Promise((resolve, reject) => {
+                const query = `
+                    INSERT INTO Players (Username, Name, Email, City, Password, Country, Age, Sexe, Points, Coins, Gems, Total_Quests, Started_Quests, Finished_Quests)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, 0, 0, 0)
+                `;
+                connection.query(query, [username, name, email, city, password, country, age, sexe], (err, results) => {
+                    if (err) {
+                        if (err.code === 'ER_DUP_ENTRY') {
+                            // Check what field caused the duplication
+                            if (err.message.includes('Username')) return resolve(-1); // Duplicate username
+                            if (err.message.includes('Email')) return resolve(-2); // Duplicate email
+                        }
+                        return reject(new Error(err.message));
+                    }
+                    resolve(results);
+                });
+            });
+    
+            if (insertResult === -1 || insertResult === -2) {
+                return insertResult;
+            }
+    
+            // Get all quests
+            const quests = await new Promise((resolve, reject) => {
+                const query = "SELECT Name FROM Quests";
+                connection.query(query, (err, results) => {
+                    if (err) reject(new Error(err.message));
+                    resolve(results.map(row => row.Name));
+                });
+            });
+    
+            for (const questName of quests) {
+                await new Promise((resolve, reject) => {
+                    const insertQuery = `
+                        INSERT INTO QuestTimes (Player_Username, Quest_Name, Completion_Time, started)
+                        VALUES (?, ?, NULL, 0)
+                    `;
+                    connection.query(insertQuery, [username, questName], (err, result) => {
+                        if (err) reject(new Error(err.message));
+                        resolve(result);
+                    });
+                });
+            }
+    
+            return 1; // Success
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
+    }
+    
     
 
 }

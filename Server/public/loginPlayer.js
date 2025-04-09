@@ -17,9 +17,9 @@ loginBtn.onclick=function(){
 function redirect(data)
 {
   console.log(data.success);
-    if(data.success){
+    if(data.success==undefined){
         window.location.href = "/";
-    }else
+    }else if(data.success==false)
     {
        alert(data.message);
     }

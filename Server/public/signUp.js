@@ -5,7 +5,7 @@ document.querySelector("form").addEventListener("submit", async (e) => {
 
     const emailInput = document.getElementById("emailInput");
     const emailError = document.getElementById("emailError");
-
+    
 
     const formData = {
         username: document.querySelector('input[type="text"]').value,
@@ -33,12 +33,9 @@ document.querySelector("form").addEventListener("submit", async (e) => {
         usernameError.style.display = "block";
         usernameError.textContent = data.message;
         usernameError.innerHTML+=signInLink;
-    } else if(response.status === 401) {
-        emailError.style.display = "block";
-        emailError.textContent = data.message;
     }else{
         
         document.querySelector("form").reset();
-        window.location.href = "/redirecting";
+        window.location.href = "/verified";
     }
 });
