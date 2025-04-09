@@ -310,7 +310,7 @@ class DbService {
             // Insert into Players table
             const insertResult = await new Promise((resolve, reject) => {
                 const query = `
-                    INSERT INTO Players (Username, Name, Email, City, Password, Country, Age, Sexe, Points, Coins, Gems, Total_Quests, Started_Quests, Finished_Quests)
+                    INSERT INTO players (Username, Name, Email, City, Password, Country, Age, Sexe, Points, Coins, Gems, Total_Quests, Started_Quests, Finished_Quests)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, 0, 0, 0)
                 `;
                 connection.query(query, [username, name, email, city, password, country, age, sexe], (err, results) => {
@@ -330,7 +330,7 @@ class DbService {
     
             // Get all quests
             const quests = await new Promise((resolve, reject) => {
-                const query = "SELECT Name FROM Quests";
+                const query = "SELECT Name FROM quests";
                 connection.query(query, (err, results) => {
                     if (err) reject(new Error(err.message));
                     resolve(results.map(row => row.Name));
@@ -341,7 +341,7 @@ class DbService {
             for (const questName of quests) {
                 await new Promise((resolve, reject) => {
                     const insertQuery = `
-                        INSERT INTO QuestTimes (Player_Username, Quest_Name, Completion_Time, started)
+                        INSERT INTO questtimes (Player_Username, Quest_Name, Completion_Time, started)
                         VALUES (?, ?, NULL, 0)
                     `;
                     connection.query(insertQuery, [username, questName], (err, result) => {
