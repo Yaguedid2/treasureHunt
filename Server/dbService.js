@@ -106,11 +106,11 @@ class DbService {
         }
     }
 
-    async addMarker(quest_id, name, latitude, longitude, marker_image, prefab, hint1, hint2, level_of_ease) {
+    async addMarker(quest_id, name, latitude, longitude, marker_image, prefab, hint1, hint2, level_of_ease,imagesize) {
         try {
             const response = await new Promise((resolve, reject) => {
-                const query = "INSERT INTO markers (quest_id, name, latitude, longitude, marker_image, prefab, hint1, hint2, level_of_ease) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
-                connection.query(query, [quest_id, name, latitude, longitude, marker_image, prefab, hint1, hint2, level_of_ease], (err, results) => {
+                const query = "INSERT INTO markers (quest_id, name, latitude, longitude, marker_image, prefab, hint1, hint2, level_of_ease,imagesize ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?);";
+                connection.query(query, [quest_id, name, latitude, longitude, marker_image, prefab, hint1, hint2, level_of_ease,imagesize], (err, results) => {
                     if (err) reject(new Error(err.message));
                     resolve(results);
                 })
@@ -136,11 +136,11 @@ class DbService {
         }
     }
 
-    async updateMarker(markerId, name, latitude, longitude, marker_image, prefab, hint1, hint2, level_of_ease) {
+    async updateMarker(markerId, name, latitude, longitude, marker_image, prefab, hint1, hint2, level_of_ease,imagesize) {
         try {
             const response = await new Promise((resolve, reject) => {
-                const query = "UPDATE markers SET name = ?, latitude = ?, longitude = ?, marker_image = ?, prefab = ?, hint1 = ?, hint2 = ?, level_of_ease = ? WHERE id = ?;";
-                connection.query(query, [name, latitude, longitude, marker_image, prefab, hint1, hint2, level_of_ease, markerId], (err, results) => {
+                const query = "UPDATE markers SET name = ?, latitude = ?, longitude = ?, marker_image = ?, prefab = ?, hint1 = ?, hint2 = ?, level_of_ease = ?,imagesize ? WHERE id = ?;";
+                connection.query(query, [name, latitude, longitude, marker_image, prefab, hint1, hint2, level_of_ease,imagesize, markerId], (err, results) => {
                     if (err) reject(new Error(err.message));
                     resolve(results);
                 });
@@ -154,7 +154,7 @@ class DbService {
     async getQuest(questId) {
         try {
             const response = await new Promise((resolve, reject) => {
-                const query = "SELECT  q.id AS quest_id,q.name AS quest_name,q.with_order,q.map AS quest_map,m.id AS marker_id,m.name AS marker_name,m.latitude,m.longitude,m.marker_image,m.prefab,m.hint1,m.hint2,m.level_of_ease FROM quests q LEFT JOIN markers m ON q.id = m.quest_id WHERE q.id = ?;";
+                const query = "SELECT  q.id AS quest_id,q.name AS quest_name,q.with_order,q.map AS quest_map,m.id AS marker_id,m.name AS marker_name,m.latitude,m.longitude,m.marker_image,m.prefab,m.hint1,m.hint2,m.level_of_ease,m.imagesize FROM quests q LEFT JOIN markers m ON q.id = m.quest_id WHERE q.id = ?;";
                 connection.query(query, [questId], (err, results) => {
                     if (err) reject(new Error(err.message));
                     resolve(results);
@@ -169,7 +169,7 @@ class DbService {
     async getQuestsUnity() {
         try {
             const response = await new Promise((resolve, reject) => {
-                const query = "SELECT q.id AS quest_id, q.name AS quest_name, q.with_order,  q.map AS quest_map,  m.id AS marker_id, m.name AS marker_name,  m.latitude,  m.longitude,  m.marker_image, m.prefab,  m.hint1, m.hint2, m.level_of_ease FROM quests q LEFT JOIN markers m ON q.id = m.quest_id ORDER BY q.id, m.id;";
+                const query = "SELECT q.id AS quest_id, q.name AS quest_name, q.with_order,  q.map AS quest_map,  m.id AS marker_id, m.name AS marker_name,  m.latitude,  m.longitude,  m.marker_image, m.prefab,  m.hint1, m.hint2, m.level_of_ease,m.imagesize  FROM quests q LEFT JOIN markers m ON q.id = m.quest_id ORDER BY q.id, m.id;";
                 connection.query(query, (err, results) => {
                     if (err) reject(new Error(err.message));
                     resolve(results);

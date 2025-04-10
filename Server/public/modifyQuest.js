@@ -17,6 +17,7 @@ window.onload=function(){
      <form class="questForm" action="/update-marker" method="POST" enctype="multipart/form-data">
     <div class="marker"> 
     <input name="questId" style="display: none;"  value="${questId}"/>
+     <button type="button" class="btn-close" aria-label="Close" onclick="removeMarker(event)"></button>
     <div class="markerPrefabDiv">
         <div class="markerDiv">
             <label for="QuestMapInput2" class="title">Marker:</label>
@@ -35,6 +36,9 @@ window.onload=function(){
          <label  class="title">latitude:</label>
         <input type="text" name="latitude" placeholder="Latitude" required>
     </div>
+    <div>
+                    <input type="text" name="imageSize" placeholder="Marker image real size(m)"  required>
+                </div>
     <div class="hintDiv">
         <label  class="title">Hint1:</label>
         <textarea name="hint1" placeholder="Hint1" required></textarea>
@@ -114,6 +118,7 @@ window.onload=function(){
             var hint2=marker.hint2;
             var latitude=marker.latitude;
             var longitude=marker.longitude;
+            var imageSize=marker.imagesize;
             var level_of_ease=marker.level_of_ease;
             var marker_image=marker.marker_image;
             var marker_name=marker.marker_name;
@@ -127,6 +132,7 @@ window.onload=function(){
             <div class="marker">
                 <input name="questId" style="display: none;"  value="${questId}"/>
                 <input name="markerId" style="display: none;" value="${marker_id}" />
+                
                 <div class="markerPrefabDiv">
                     <div class="markerDiv" style="display: flex; flex-direction: column; align-items: center;">
                         <div style="width: 80%;" >
@@ -161,6 +167,9 @@ window.onload=function(){
                     <input type="text" name="longitude" value="${longitude}" required>
                      <label  class="title">latitude:</label>
                     <input type="text" name="latitude" value="${latitude}" required>
+                </div>
+                <div>
+                    <input type="text" name="imageSize" value="${imageSize}"  required>
                 </div>
                 <div class="hintDiv">
                      <label  class="title">hint1:</label>
@@ -249,6 +258,9 @@ window.onload=function(){
             });
         });
     }
+ 
     
-    
+}
+function removeMarker(event){
+    event.currentTarget.parentElement.parentElement.removeChild(event.currentTarget.parentElement);
 }

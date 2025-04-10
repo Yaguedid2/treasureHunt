@@ -247,9 +247,10 @@ app.post('/upload', upload.fields([
                     const latitude=typeof(req.body.latitude)=='object'? req.body.latitude[index]:req.body.latitude;
                     const hint1=typeof(req.body.hint1)=='object'?req.body.hint1[index]:req.body.hint1;
                     const hint2=typeof(req.body.hint2)=='object'?req.body.hint2[index]:req.body.hint2;
+                    const imageSize=typeof(req.body.imageSize)=='object'?req.body.imageSize[index]:req.body.imageSize;
                     const difficultyLevel=typeof(req.body.difficultyLevel)=='object'?req.body.difficultyLevel[index]:req.body.difficultyLevel;
 
-                    db.addMarker(questId,markerName,latitude,longitude,markerImage,prefab,hint1,hint2,difficultyLevel); 
+                    db.addMarker(questId,markerName,latitude,longitude,markerImage,prefab,hint1,hint2,difficultyLevel,imageSize); 
                    
                 });
             }
@@ -343,13 +344,13 @@ app.post('/update-marker', upload.fields([
             const hint1 = req.body.hint1;
             const hint2 = req.body.hint2;
             const difficultyLevel =req.body.difficultyLevel;
-          
+            const imageSize =req.body.imageSize;
             if (markerId) {
               
-                 db.updateMarker(markerId, markerName, latitude, longitude, markerImage, prefab, hint1, hint2, difficultyLevel);
+                 db.updateMarker(markerId, markerName, latitude, longitude, markerImage, prefab, hint1, hint2, difficultyLevel,imageSize);
             }else{
               
-                db.addMarker(questId,markerName,latitude,longitude,markerImage,prefab,hint1,hint2,difficultyLevel); 
+                db.addMarker(questId,markerName,latitude,longitude,markerImage,prefab,hint1,hint2,difficultyLevel,imageSize); 
             }
            
     

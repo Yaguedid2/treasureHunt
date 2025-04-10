@@ -1,5 +1,6 @@
     
 const markerDiv=`<div class="marker">
+            <button type="button" class="btn-close" aria-label="Close" onclick="removeMarker(event)"></button>
             <div class="markerPrefabDiv">
                 <div class="markerDiv">
                     <label for="QuestMapInput2" class="title">Marker:</label>
@@ -14,7 +15,11 @@ const markerDiv=`<div class="marker">
                 <input type="text" name="markerName" placeholder="Marker Name" required>
                 <input type="text" name="longitude" placeholder="Longitude" required>
                 <input type="text" name="latitude" placeholder="Latitude" required>
+                 
             </div>
+            <div>
+                    <input type="text" name="imageSize" placeholder="Marker image real size(m)"  required>
+                </div>
             <div class="hintDiv">
                 <textarea name="hint1" placeholder="Hint1" required></textarea>
                 <textarea name="hint2" placeholder="Hint2" required></textarea>
@@ -34,14 +39,19 @@ fetch('/getUserName')
 .then(data=>document.querySelector("#userNameText").innerHTML="Hi "+data);
 
 
-
 const addMarkerButton=document.querySelector("#addMarkerBtn");
 addMarkerButton.addEventListener("click",function(){
+
 const markerContainerDiv=document.querySelector("#markerContainer");
 markerContainerDiv.insertAdjacentHTML('beforeend', markerDiv);
 
 
+
 })
+
+function removeMarker(event){
+    event.currentTarget.parentElement.parentElement.removeChild(event.currentTarget.parentElement);
+}
 
        
 
