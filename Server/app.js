@@ -347,7 +347,7 @@ app.post('/update-marker', upload.fields([
             const imageSize =req.body.imageSize;
             if (markerId) {
               
-                 db.updateMarker(markerId, markerName, latitude, longitude, markerImage, prefab, hint1, hint2, difficultyLevel,imageSize,);
+                 db.updateMarker(markerId, markerName, latitude, longitude, markerImage, prefab, hint1, hint2, difficultyLevel,imageSize);
             }else{
               
                 db.addMarker(questId,markerName,latitude,longitude,markerImage,prefab,hint1,hint2,difficultyLevel,imageSize,0); 
@@ -531,7 +531,7 @@ app.post('/updateMarker', (request, response) => {
     
     const db = DbService.getDbServiceInstance();
 
-    db.updateMarker(marker_id,done)
+    db.updateMarkerUnity(marker_id,done)
         .then(result => response.json({ result }))
         .catch(err => {
             console.error(err);

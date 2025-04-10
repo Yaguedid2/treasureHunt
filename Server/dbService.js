@@ -415,7 +415,7 @@ class DbService {
     }
 
 
-    async  updateMarker(markerId,done) {
+    async  updateMarkerUnity(markerId,done) {
         try {
             const result = await new Promise((resolve, reject) => {
                 // First, check if the quest exists
