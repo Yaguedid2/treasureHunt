@@ -512,6 +512,19 @@ app.get('/getQuestsUnity', (req, res) => {
          });
  });
 
+ app.post('/updatePlayerQuests', (request, response) => {
+    const { playerusername, questname, completionTime, started } = request.body;
+
+    const db = DbService.getDbServiceInstance();
+
+    db.updatePlayerQuests(playerusername, questname, completionTime, started)
+        .then(result => response.json({ result }))
+        .catch(err => {
+            console.error(err);
+            response.status(500).json({ error: 'An error occurred' });
+        });
+});
+
  //////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////downlaod /////////////////////
 

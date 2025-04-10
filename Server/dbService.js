@@ -357,6 +357,62 @@ class DbService {
             throw error;
         }
     }
+
+
+    async  updatePlayerQuests(playerusername, questname, completionTime, started) {
+        try {
+            const result = await new Promise((resolve, reject) => {
+                // First, check if the quest exists
+                const checkQuestQuery = `SELECT 1 FROM Quests WHERE Name = ? LIMIT 1`; // Adjust table/column names if needed
+                connection.query(checkQuestQuery, [questname], (err, questResults) => {
+                    if (err) return reject(new Error(err.message));
+    
+                    if (questResults.length === 0) {
+                        // Quest does not exist
+                        return resolve(-1);
+                    }
+    
+                    // Check if entry already exists in questtimes
+                    const checkEntryQuery = `
+                        SELECT * FROM QuestTimes 
+                        WHERE Player_Username = ? AND Quest_Name = ?
+                    `;
+                    connection.query(checkEntryQuery, [playerusername, questname], (err, existingEntries) => {
+                        if (err) return reject(new Error(err.message));
+    
+                        if (existingEntries.length > 0) {
+                            // Entry exists, update it
+                            const updateQuery = `
+                                UPDATE QuestTimes 
+                                SET Completion_Time = ?, started = ? 
+                                WHERE Player_Username = ? AND Quest_Name = ?
+                            `;
+                            connection.query(updateQuery, [completionTime, started, playerusername, questname], (err, updateResult) => {
+                                if (err) return reject(new Error(err.message));
+                                resolve(1); // Successfully updated
+                            });
+                        } else {
+                            // Entry doesn't exist, insert it
+                            const insertQuery = `
+                                INSERT INTO QuestTimes 
+                                (Player_Username, Quest_Name, Completion_Time, started)
+                                VALUES (?, ?, ?, ?)
+                            `;
+                            connection.query(insertQuery, [playerusername, questname, completionTime, started], (err, insertResult) => {
+                                if (err) return reject(new Error(err.message));
+                                resolve(2); // Successfully inserted
+                            });
+                        }
+                    });
+                });
+            });
+    
+            return result;
+        } catch (error) {
+            console.log(error);
+            return -2; // Error occurred
+        }
+    }
     
 }
 
