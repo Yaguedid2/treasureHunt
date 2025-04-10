@@ -250,7 +250,7 @@ app.post('/upload', upload.fields([
                     const imageSize=typeof(req.body.imageSize)=='object'?req.body.imageSize[index]:req.body.imageSize;
                     const difficultyLevel=typeof(req.body.difficultyLevel)=='object'?req.body.difficultyLevel[index]:req.body.difficultyLevel;
 
-                    db.addMarker(questId,markerName,latitude,longitude,markerImage,prefab,hint1,hint2,difficultyLevel,imageSize); 
+                    db.addMarker(questId,markerName,latitude,longitude,markerImage,prefab,hint1,hint2,difficultyLevel,imageSize,0); 
                    
                 });
             }
@@ -347,10 +347,10 @@ app.post('/update-marker', upload.fields([
             const imageSize =req.body.imageSize;
             if (markerId) {
               
-                 db.updateMarker(markerId, markerName, latitude, longitude, markerImage, prefab, hint1, hint2, difficultyLevel,imageSize);
+                 db.updateMarker(markerId, markerName, latitude, longitude, markerImage, prefab, hint1, hint2, difficultyLevel,imageSize,);
             }else{
               
-                db.addMarker(questId,markerName,latitude,longitude,markerImage,prefab,hint1,hint2,difficultyLevel,imageSize); 
+                db.addMarker(questId,markerName,latitude,longitude,markerImage,prefab,hint1,hint2,difficultyLevel,imageSize,0); 
             }
            
     
@@ -526,7 +526,18 @@ app.get('/getQuestsUnity', (req, res) => {
             response.status(500).json({ error: 'An error occurred' });
         });
 });
+app.post('/updateMarker', (request, response) => {
+    const { marker_id, done } = request.body;
+    
+    const db = DbService.getDbServiceInstance();
 
+    db.updateMarker(marker_id,done)
+        .then(result => response.json({ result }))
+        .catch(err => {
+            console.error(err);
+            response.status(500).json({ error: 'An error occurred' });
+        });
+});
  //////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////downlaod /////////////////////
 
