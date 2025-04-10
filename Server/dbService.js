@@ -363,7 +363,7 @@ class DbService {
         try {
             const result = await new Promise((resolve, reject) => {
                 // First, check if the quest exists
-                const checkQuestQuery = `SELECT 1 FROM Quests WHERE Name = ? LIMIT 1`; // Adjust table/column names if needed
+                const checkQuestQuery = `SELECT 1 FROM quests WHERE Name = ? LIMIT 1`; // Adjust table/column names if needed
                 connection.query(checkQuestQuery, [questname], (err, questResults) => {
                     if (err) return reject(new Error(err.message));
     
@@ -374,7 +374,7 @@ class DbService {
     
                     // Check if entry already exists in questtimes
                     const checkEntryQuery = `
-                        SELECT * FROM QuestTimes 
+                        SELECT * FROM questtimes 
                         WHERE Player_Username = ? AND Quest_Name = ?
                     `;
                     connection.query(checkEntryQuery, [playerusername, questname], (err, existingEntries) => {
@@ -383,7 +383,7 @@ class DbService {
                         if (existingEntries.length > 0) {
                             // Entry exists, update it
                             const updateQuery = `
-                                UPDATE QuestTimes 
+                                UPDATE questTimes 
                                 SET Completion_Time = ?, started = ? 
                                 WHERE Player_Username = ? AND Quest_Name = ?
                             `;
@@ -394,7 +394,7 @@ class DbService {
                         } else {
                             // Entry doesn't exist, insert it
                             const insertQuery = `
-                                INSERT INTO QuestTimes 
+                                INSERT INTO questtimes 
                                 (Player_Username, Quest_Name, Completion_Time, started)
                                 VALUES (?, ?, ?, ?)
                             `;
