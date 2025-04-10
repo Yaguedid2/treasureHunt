@@ -514,7 +514,9 @@ app.get('/getQuestsUnity', (req, res) => {
 
  app.post('/updatePlayerQuests', (request, response) => {
     const { playerusername, questname, completionTime, started } = request.body;
-
+    if (completionTime === "null" || completionTime === "" || completionTime == null) {
+        completionTime = null;
+    }
     const db = DbService.getDbServiceInstance();
 
     db.updatePlayerQuests(playerusername, questname, completionTime, started)
