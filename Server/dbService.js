@@ -422,11 +422,11 @@ class DbService {
                 const query = `UPDATE markers SET done=? WHERE id=?;`; // Adjust table/column names if needed
                 connection.query(query, [done,markerId], (err) => {
                     if (err) return reject(new Error(err.message));  
-                    return -1; // Success
+                   return resolve(-1);
                 });
             });
     
-            return 1; // Success
+            return resolve(1);
         } catch (error) {
             console.log(error);          
         }
