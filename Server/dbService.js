@@ -383,7 +383,7 @@ class DbService {
                         if (existingEntries.length > 0) {
                             // Entry exists, update it
                             const updateQuery = `
-                                UPDATE questTimes 
+                                UPDATE questtimes 
                                 SET Completion_Time = ?, started = ? 
                                 WHERE Player_Username = ? AND Quest_Name = ?
                             `;
