@@ -528,13 +528,17 @@ app.get('/getQuestsUnity', (req, res) => {
 });
 app.post('/updateMarker', (request, response) => {
     const { marker_id, done } = request.body;
-    
+    console.log('Received:', { marker_id, done });
+
     const db = DbService.getDbServiceInstance();
 
-    db.updateMarkerUnity(marker_id,done)
-        .then(result => response.json({ result }))
+    db.updateMarkerUnity(marker_id, done)
+        .then(result => {
+            console.log("Database updated:", result);
+            response.json({ success: true, result });
+        })
         .catch(err => {
-            console.error(err);
+            console.error("Error in DB:", err);
             response.status(500).json({ error: 'An error occurred' });
         });
 });

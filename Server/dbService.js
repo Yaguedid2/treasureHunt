@@ -415,20 +415,20 @@ class DbService {
     }
 
 
-    async  updateMarkerUnity(markerId,done) {
+    async updateMarkerUnity(markerId, done) {
         try {
             const result = await new Promise((resolve, reject) => {
-                // First, check if the quest exists
-                const query = `UPDATE markers SET done=? WHERE id=?;`; // Adjust table/column names if needed
-                connection.query(query, [done,markerId], (err) => {
-                    if (err) return reject(new Error(err.message));  
-                    return { success: false};
+                const query = `UPDATE markers SET done=? WHERE id=?`;
+                connection.query(query, [done, markerId], (err, results) => {
+                    if (err) return reject(new Error(err.message));
+                    resolve({ success: true, results });
                 });
             });
     
-            return { success: true};
+            return result;
         } catch (error) {
-            console.log(error);          
+            console.log("updateMarkerUnity error:", error);
+            throw error;
         }
     }
     
